@@ -3,6 +3,12 @@ import json
 import asyncio
 import aiohttp
 import time
+import io
+import img_generator
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, BotCommand
+import asyncio
+import aiohttp
+import time
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, BotCommand
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, CallbackQueryHandler, MessageHandler, filters
 
@@ -207,55 +213,24 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.edit_message_text("❌ Failed to fetch profile.", parse_mode="HTML")
             
     elif query.data == 'menu_perc':
-        await query.edit_message_text(get_progress(30, "Downloading attendance..."), parse_mode="HTML")
+        await query.edit_message_text(get_progress(30, "Drawing charts..."), parse_mode="HTML")
         data = await fetch_erp_data(token)
         
-        if data.get("summary") and data["summary"].get("success"):
-            subjects = data["summary"].get("data", [])
-            msg = "📊 <b>ATTENDANCE SUMMARY</b>\n━━━━━━━━━━━━━━━━━━\n\n"
-            
-            for item in subjects:
-                name = item.get("subjectName", "Unknown")
-                if len(name) > 25: name = name[:22] + "..."
-                perc = item.get("subjectTotalPercentage", 0)
-                bar = generate_markdown_bar(perc)
-                
-                if "ALL SUBJECTS" in name:
-                    msg += f"\n🎯 <b>OVERALL: {perc}%</b>\n{bar}\n"
-                else:
-                    msg += f"📚 <b>{name}</b>\n{bar} <b>{perc}%</b>\n\n"
-                    
-            await query.edit_message_text(msg, parse_mode="HTML")
+        bio = img_generator.render_summary_image(data)
+        if bio:
+            await query.message.reply_photo(photo=bio, caption="✨ <b>Premium Attendance Summary</b>", parse_mode="HTML")
+            await query.message.delete()
         else:
             await query.edit_message_text("❌ Failed to fetch data.", parse_mode="HTML")
 
     elif query.data == 'menu_timetable':
-        await query.edit_message_text(get_progress(40, "Fetching Timetable..."), parse_mode="HTML")
+        await query.edit_message_text(get_progress(40, "Rendering Timetable..."), parse_mode="HTML")
         data = await fetch_timetable_data(token)
         
-        if data and data.get("success"):
-            raw_data = data.get("data", [])
-            abbr_map = {str(a.get("SN")): a for a in data.get("abbreviations", [])}
-            
-            msg = "🗓️ <b>LIVE TIMETABLE</b>\n━━━━━━━━━━━━━━━━━━\n"
-            for row in raw_data:
-                day = str(row.get("day", "")).upper()
-                if "DAY" in day or not day: continue
-                
-                msg += f"\n📅 <b>{day}</b>\n"
-                for i in range(1, 9):
-                    cell = row.get(str(i))
-                    if cell:
-                        if isinstance(cell, list) and cell: cell = cell[0] # Take first if multiple
-                        
-                        if isinstance(cell, (int, str)) and str(cell) in abbr_map: cell = abbr_map[str(cell)]
-                        
-                        if isinstance(cell, dict):
-                            sub = cell.get("subjectCode", "")
-                            room = cell.get("roomNo", "")
-                            if sub: msg += f"• P{i}: <b>{sub}</b> (📍 {room})\n"
-                            
-            await query.edit_message_text(msg, parse_mode="HTML")
+        bio = img_generator.render_timetable_image(data)
+        if bio:
+            await query.message.reply_photo(photo=bio, caption="🗓️ <b>Live Timetable</b>", parse_mode="HTML")
+            await query.message.delete()
         else:
             await query.edit_message_text("❌ Failed to fetch timetable.", parse_mode="HTML")
 
@@ -270,30 +245,14 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     elif query.data.startswith('month_'):
         month_idx = query.data.split('_')[1]
-        await query.edit_message_text(get_progress(40, "Downloading records..."), parse_mode="HTML")
+        await query.edit_message_text(get_progress(40, "Generating Registry..."), parse_mode="HTML")
         
         data = await fetch_erp_data(token, month=month_idx)
-        detailed = data.get("detailed")
+        bio = img_generator.render_subjectwise_image(data, month_idx)
         
-        if detailed and detailed.get("success") and detailed.get("data"):
-            days = detailed.get("data", [])
-            msg = f"📅 <b>MONTH {month_idx} REGISTRY</b>\n━━━━━━━━━━━━━━━━━━\n\n"
-            
-            for day in days[:10]: # Limit to 10 days to fit in Telegram max message length
-                date_str = day.get("attendanceDate", "").split("T")[0]
-                msg += f"🗓️ {date_str}:\n"
-                for lec in day.get("attendances", []):
-                    code = lec.get("subjectCode", "NA")
-                    stat = lec.get("status", "-")
-                    icon = "✅" if stat == "P" else "❌" if stat == "A" else "➖"
-                    msg += f" {icon} {code}\n"
-                msg += "\n"
-                
-            if len(days) > 10:
-                msg += f"\n<i>...and {len(days)-10} more days. (Truncated for Vercel)</i>\n"
-                
-            msg += f"━━━━━━━━━━━━━━━━━━\n🙋 Attended: {detailed.get('presentDays', 0)} | 🏃 Missed: {detailed.get('absentDays', 0)}"
-            await query.edit_message_text(msg, parse_mode="HTML")
+        if bio:
+            await query.message.reply_photo(photo=bio, caption=f"📅 <b>Month {month_idx} Registry</b>", parse_mode="HTML")
+            await query.message.delete()
         else:
             await query.edit_message_text("❌ No data found for this month.", parse_mode="HTML")
 
