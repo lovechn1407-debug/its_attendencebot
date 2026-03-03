@@ -1,0 +1,4 @@
+python-telegram-bot==20.8
+aiohttp==3.9.3
+redis==5.0.3
+Flask==3.0.0

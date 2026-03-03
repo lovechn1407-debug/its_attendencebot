@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITS ERP Bot Admin ✨</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.260.0/lucide.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #f8fafc; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="h-screen flex overflow-hidden">
+
+    <!-- Login Overlay -->
+    <div id="loginOverlay" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center">
+        <div class="bg-gray-900 p-8 rounded-2xl border border-gray-800 w-96 shadow-2xl">
+            <h2 class="text-2xl font-bold mb-6 text-white text-center">Admin Access</h2>
+            <input type="password" id="adminPwd" placeholder="Enter Admin Password" class="w-full bg-gray-800 border border-gray-700 text-white p-3 rounded-lg mb-4 focus:ring-2 focus:ring-sky-500 outline-none transition-all">
+            <button onclick="login()" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-3 rounded-lg transition-colors">Login</button>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="w-64 bg-gray-900 border-r border-gray-800 flex flex-col">
+        <div class="p-6 border-b border-gray-800">
+            <h1 class="text-xl font-bold bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent">Bot Admin Panel</h1>
+        </div>
+        <nav class="flex-1 p-4 space-y-2">
+            <button onclick="switchTab('dashboard')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg bg-gray-800 text-white transition-colors" data-tab="dashboard">
+                <span>📊</span> <span>Dashboard</span>
+            </button>
+            <button onclick="switchTab('broadcast')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors" data-tab="broadcast">
+                <span>📢</span> <span>Broadcast</span>
+            </button>
+            <button onclick="switchTab('texts')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors" data-tab="texts">
+                <span>📝</span> <span>Bot Texts</span>
+            </button>
+        </nav>
+        <div class="p-4 border-t border-gray-800">
+            <button onclick="logout()" class="w-full px-4 py-2 text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">Logout</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 overflow-y-auto bg-black p-8">
+        
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold mb-8">System Overview</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-lg flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 font-medium mb-1">Total Registered Users</p>
+                        <h3 class="text-4xl font-bold text-sky-400" id="stat-users">--</h3>
+                    </div>
+                    <div class="text-4xl">👥</div>
+                </div>
+                <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-lg flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 font-medium mb-1">Bot Status</p>
+                        <h3 class="text-2xl font-bold text-emerald-400 flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span> Online
+                        </h3>
+                    </div>
+                    <div class="text-4xl">🤖</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Broadcast Tab -->
+        <div id="broadcast" class="tab-content max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold mb-8">Send Announcement</h2>
+            <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-lg">
+                
+                <!-- ✨ Gemini API Feature: AI Drafter -->
+                <div class="mb-6 p-4 bg-indigo-900/20 border border-indigo-500/30 rounded-xl">
+                    <label class="block text-indigo-300 font-semibold mb-2 text-sm">✨ AI Announcement Drafter</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="ai-topic" placeholder="e.g., Server maintenance tomorrow at 10 AM, will be back by noon..." class="flex-1 bg-gray-800 border border-gray-700 text-white p-3 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                        <button onclick="draftWithAI()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2 whitespace-nowrap" id="ai-draft-btn">
+                            ✨ Draft
+                        </button>
+                    </div>
+                    <p class="text-xs text-indigo-400/70 mt-2">Powered by Gemini LLM</p>
+                </div>
+
+                <p class="text-gray-400 mb-4">Send a message to all registered users. HTML tags like &lt;b&gt; and &lt;i&gt; are supported.</p>
+                
+                <!-- Quick Variables Tool -->
+                <div class="mb-3">
+                    <span class="text-gray-400 text-sm mr-2 block mb-2 sm:inline sm:mb-0">Insert Variables:</span>
+                    <div class="inline-flex flex-wrap gap-2">
+                        <button onclick="insertVar('{name}')" class="text-xs bg-sky-900/30 text-sky-400 border border-sky-500/30 px-3 py-1 rounded hover:bg-sky-500 hover:text-white transition-colors">{name}</button>
+                        <button onclick="insertVar('{email}')" class="text-xs bg-sky-900/30 text-sky-400 border border-sky-500/30 px-3 py-1 rounded hover:bg-sky-500 hover:text-white transition-colors">{email}</button>
+                        <button onclick="insertVar('{rollNo}')" class="text-xs bg-sky-900/30 text-sky-400 border border-sky-500/30 px-3 py-1 rounded hover:bg-sky-500 hover:text-white transition-colors">{rollNo}</button>
+                        <button onclick="insertVar('{course}')" class="text-xs bg-sky-900/30 text-sky-400 border border-sky-500/30 px-3 py-1 rounded hover:bg-sky-500 hover:text-white transition-colors">{course}</button>
+                    </div>
+                </div>
+
+                <textarea id="broadcast-msg" rows="6" class="w-full bg-gray-800 border border-gray-700 text-white p-4 rounded-xl mb-4 focus:ring-2 focus:ring-sky-500 outline-none transition-all" placeholder="Enter your announcement here..."></textarea>
+                <button onclick="sendBroadcast()" class="bg-sky-500 hover:bg-sky-600 px-6 py-3 rounded-xl font-semibold transition-colors flex items-center gap-2">
+                    🚀 Send to All Users
+                </button>
+                <p id="broadcast-status" class="mt-4 text-emerald-400 hidden font-medium"></p>
+            </div>
+        </div>
+
+        <!-- Texts Tab -->
+        <div id="texts" class="tab-content max-w-5xl mx-auto">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold">Edit Bot Texts</h2>
+                <button onclick="saveTexts()" class="bg-emerald-500 hover:bg-emerald-600 px-6 py-2 rounded-xl font-semibold transition-colors">
+                    💾 Save All Changes
+                </button>
+            </div>
+            <div class="bg-gray-900 rounded-2xl border border-gray-800 shadow-lg p-6">
+                <div class="mb-6 p-3 bg-blue-900/20 border border-blue-500/30 rounded-lg text-sm text-blue-300">
+                    <span class="font-bold">Tip:</span> Use the ✨ Enhance button next to any text to have Gemini rewrite it to be more engaging and professional!
+                </div>
+                <div id="text-editors" class="space-y-6">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let token = localStorage.getItem('admin_pwd') || '';
+
+        // --- GEMINI API INTEGRATION ---
+        const apiKey = ""; // The execution environment provides the key at runtime
+
+        async function callGemini(prompt) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { 
+                    parts: [{ text: "You are a helpful AI assistant for a university ERP Telegram bot administrator. Write clean, professional, and friendly messages. Keep HTML formatting like <b>, <i>, and variables like {name} intact. Output ONLY the finalized text without wrapping quotes or markdown blocks." }] 
+                }
+            };
+
+            let retries = 5;
+            let delay = 1000;
+            
+            while (retries > 0) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (!response.ok) throw new Error("API request failed");
+                    
+                    const data = await response.json();
+                    if (data.candidates && data.candidates[0].content.parts[0].text) {
+                        return data.candidates[0].content.parts[0].text;
+                    }
+                    throw new Error("Invalid response format");
+                } catch (e) {
+                    retries--;
+                    if (retries === 0) throw e;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2;
+                }
+            }
+        }
+
+        async function draftWithAI() {
+            const topic = document.getElementById('ai-topic').value;
+            if (!topic.trim()) return alert("Please enter a topic to draft!");
+            
+            const btn = document.getElementById('ai-draft-btn');
+            const originalBtnHTML = btn.innerHTML;
+            btn.innerHTML = "⏳ Drafting...";
+            btn.disabled = true;
+
+            try {
+                const prompt = `Write a friendly and professional announcement for students using our Telegram ERP bot. Ensure it uses appropriate emojis and is formatted nicely. The topic is: "${topic}"`;
+                const draftedMsg = await callGemini(prompt);
+                document.getElementById('broadcast-msg').value = draftedMsg.trim();
+            } catch (error) {
+                alert("Failed to reach Gemini API. Ensure your environment provides the API key.");
+                console.error(error);
+            } finally {
+                btn.innerHTML = originalBtnHTML;
+                btn.disabled = false;
+            }
+        }
+
+        async function enhanceText(key) {
+            const textarea = document.getElementById(`text_${key}`);
+            const currentText = textarea.value;
+            if (!currentText.trim()) return;
+
+            const btn = document.getElementById(`btn_enhance_${key}`);
+            const originalBtnHTML = btn.innerHTML;
+            btn.innerHTML = "⏳ Enhancing...";
+            btn.disabled = true;
+
+            try {
+                const prompt = `Improve the following UI text used in a student ERP Telegram bot. Make it sound more engaging, polite, and professional. Keep it concise. VERY IMPORTANT: Do NOT remove or modify any variables wrapped in curly braces like {name}, {elapsed}, or {month}. Keep HTML tags like <b> and <i> intact.\n\nOriginal Text:\n${currentText}`;
+                const enhancedText = await callGemini(prompt);
+                textarea.value = enhancedText.trim();
+                textarea.classList.add("ring-2", "ring-indigo-500", "bg-indigo-900/20");
+                setTimeout(() => textarea.classList.remove("ring-2", "ring-indigo-500", "bg-indigo-900/20"), 1500);
+            } catch (error) {
+                alert("Failed to enhance text via Gemini API.");
+                console.error(error);
+            } finally {
+                btn.innerHTML = originalBtnHTML;
+                btn.disabled = false;
+            }
+        }
+        // --- END GEMINI API ---
+
+        // UI Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if(btn.dataset.tab === tabId) {
+                    btn.classList.add('bg-gray-800', 'text-white');
+                    btn.classList.remove('text-gray-400');
+                } else {
+                    btn.classList.remove('bg-gray-800', 'text-white');
+                    btn.classList.add('text-gray-400');
+                }
+            });
+        }
+
+        function checkAuth() {
+            if (token) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                loadData();
+            } else {
+                document.getElementById('loginOverlay').style.display = 'flex';
+            }
+        }
+
+        function login() {
+            token = document.getElementById('adminPwd').value;
+            localStorage.setItem('admin_pwd', token);
+            checkAuth();
+        }
+
+        function logout() {
+            localStorage.removeItem('admin_pwd');
+            token = '';
+            checkAuth();
+        }
+
+        function insertVar(variable) {
+            const textarea = document.getElementById('broadcast-msg');
+            const startPos = textarea.selectionStart;
+            const endPos = textarea.selectionEnd;
+            const text = textarea.value;
+            
+            textarea.value = text.substring(0, startPos) + variable + text.substring(endPos, text.length);
+            textarea.focus();
+            textarea.selectionStart = startPos + variable.length;
+            textarea.selectionEnd = startPos + variable.length;
+        }
+
+        // API Calls
+        async function fetchAPI(endpoint, method = 'GET', body = null) {
+            const options = {
+                method,
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+            };
+            if (body) options.body = JSON.stringify(body);
+            
+            const res = await fetch(`/api/${endpoint}`, options);
+            if (res.status === 401) {
+                logout();
+                alert("Invalid Password!");
+                return null;
+            }
+            return await res.json();
+        }
+
+        async function loadData() {
+            // Load Stats
+            const stats = await fetchAPI('stats');
+            if (stats) document.getElementById('stat-users').innerText = stats.users;
+
+            // Load Texts
+            const texts = await fetchAPI('texts');
+            if (texts) {
+                const container = document.getElementById('text-editors');
+                container.innerHTML = '';
+                for (const [key, val] of Object.entries(texts)) {
+                    container.innerHTML += `
+                        <div class="relative group">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="text-sky-400 font-semibold text-sm uppercase tracking-wider">${key}</label>
+                                <button onclick="enhanceText('${key}')" id="btn_enhance_${key}" class="text-xs bg-indigo-900/50 hover:bg-indigo-600 text-indigo-300 hover:text-white px-3 py-1 rounded-md transition-all flex items-center gap-1 opacity-0 group-hover:opacity-100 focus:opacity-100">
+                                    ✨ Enhance
+                                </button>
+                            </div>
+                            <textarea id="text_${key}" rows="${val.length > 50 ? 3 : 1}" class="w-full bg-gray-800 border border-gray-700 text-white p-3 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none transition-all">${val}</textarea>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        async function sendBroadcast() {
+            const msg = document.getElementById('broadcast-msg').value;
+            if (!msg.trim()) return alert("Message cannot be empty!");
+            if (!confirm("Are you sure you want to message ALL users?")) return;
+
+            const res = await fetchAPI('announce', 'POST', { message: msg });
+            if (res && res.sent !== undefined) {
+                document.getElementById('broadcast-msg').value = '';
+                document.getElementById('ai-topic').value = '';
+                const status = document.getElementById('broadcast-status');
+                status.innerText = `✅ Successfully sent to ${res.sent} users!`;
+                status.classList.remove('hidden');
+                setTimeout(() => status.classList.add('hidden'), 5000);
+            }
+        }
+
+        async function saveTexts() {
+            const texts = await fetchAPI('texts'); // get keys
+            if (!texts) return;
+
+            const newTexts = {};
+            for (const key of Object.keys(texts)) {
+                newTexts[key] = document.getElementById(`text_${key}`).value;
+            }
+
+            const res = await fetchAPI('texts', 'POST', newTexts);
+            if (res && res.success) {
+                alert("✅ Texts updated successfully! Users will see the new messages instantly.");
+            }
+        }
+
+        checkAuth();
+    </script>
+</body>
+</html>
