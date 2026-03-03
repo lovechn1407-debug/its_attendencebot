@@ -223,13 +223,16 @@ def render_subjectwise_image(data, month_idx, copyright_text=None):
     days = detailed.get("data", [])
     if not days: return None
     
-    pad = 50
-    title_h = 130
+    # Map for full subject names
+    subject_map = {item.get("subjectCode", ""): item.get("subjectName", "") for item in data.get("summary", {}).get("data", [])}
     
-    # Updated logic: now 1 date column + 8 period columns + 1 LUNCH separator
-    # Date (120), P1-P4 (110x4), LUNCH (50), P5-P8 (110x4)
-    col_widths = [130, 110, 110, 110, 110, 50, 110, 110, 110, 110]
-    row_h = 65
+    pad = 60
+    title_h = 160
+    
+    # Updated logic: Make columns much wider to fit Subject Names inside cells!
+    # Date (180), P1-P4 (220x4), LUNCH (80), P5-P8 (220x4)
+    col_widths = [180, 220, 220, 220, 220, 80, 220, 220, 220, 220]
+    row_h = 120 # Double the height to fit multi-line subject names
     
     total_w = pad*2 + sum(col_widths)
     # limit to 15 days max
@@ -239,13 +242,13 @@ def render_subjectwise_image(data, month_idx, copyright_text=None):
     img = Image.new("RGB", (total_w, total_h), BG_COLOR)
     draw = ImageDraw.Draw(img)
     
-    font_title = get_font(46, bold=True)
-    font_head = get_font(15, bold=True)
-    font_date = get_font(16, bold=True)
-    font_sub = get_font(11, bold=True)
-    font_lunch = get_font(18, bold=True)
-    font_stat = get_font(30, bold=True)
-    font_stat_sub = get_font(16, bold=False)
+    font_title = get_font(54, bold=True)
+    font_head = get_font(20, bold=True)
+    font_date = get_font(20, bold=True)
+    font_sub = get_font(14, bold=True)
+    font_lunch = get_font(24, bold=True)
+    font_stat = get_font(36, bold=True)
+    font_stat_sub = get_font(20, bold=False)
     
     mn_name = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
     m_str = mn_name[int(month_idx)-1] if 1 <= int(month_idx) <= 12 else month_idx
@@ -255,8 +258,8 @@ def render_subjectwise_image(data, month_idx, copyright_text=None):
     x_offset = pad
     headers = ["DATE", "P1", "P2", "P3", "P4", "☕", "P5", "P6", "P7", "P8"]
     for i, h in enumerate(headers):
-        align_x = x_offset + (col_widths[i] // 2) - 15
-        draw.text((align_x, pad + title_h - 45), h, font=font_head, fill=TEXT_MUTED)
+        align_x = x_offset + (col_widths[i] // 2) - 20
+        draw.text((align_x, pad + title_h - 60), h, font=font_head, fill=TEXT_MUTED)
         x_offset += col_widths[i]
         
     y_offset = pad + title_h
@@ -270,44 +273,45 @@ def render_subjectwise_image(data, month_idx, copyright_text=None):
         date_str = day.get("attendanceDate", "").split("T")[0][-5:] # MM-DD
         
         # Date Box
-        draw_rounded_rect(draw, [pad, y+4, pad+col_widths[0]-6, y+row_h-4], 8, fill=CARD_BG, outline=ACCENT_BLUE, width=1)
-        draw.text((pad + 35, y + 22), date_str, font=font_date, fill=TEXT_MAIN)
+        draw_rounded_rect(draw, [pad, y+6, pad+col_widths[0]-8, y+row_h-6], 12, fill=CARD_BG, outline=ACCENT_BLUE, width=2)
+        draw.text((pad + 40, y + 45), date_str, font=font_date, fill=TEXT_MAIN)
         
         lecs = day.get("attendances", [])
         
-        # Draw Periods 1-4
-        x = pad + col_widths[0]
-        for j in range(4):
-            draw_rounded_rect(draw, [x+4, y+4, x+col_widths[j+1]-4, y+row_h-4], 8, fill=CARD_BG, outline=CARD_BORDER, width=1)
-            
-            if j < len(lecs):
-                lec = lecs[j]
+        def draw_period(x, y, j, lecs):
+            draw_rounded_rect(draw, [x+6, y+6, x+col_widths[j]-8, y+row_h-6], 12, fill=CARD_BG, outline=CARD_BORDER, width=2)
+            if j-1 < len(lecs): # j is col index (1 to 4, 6 to 9)
+                lec = lecs[j-1 if j < 5 else j-2]
                 stat = lec.get("status", "-")
+                code = lec.get("subjectCode", "")
+                full_name = subject_map.get(code, code)
+                if len(full_name) > 22: full_name = full_name[:19] + "..."
+                
                 color = ACCENT_GREEN if stat == "P" else ACCENT_RED if stat == "A" else TEXT_MUTED
                 bg = ACCENT_GREEN_BG if stat == "P" else ACCENT_RED_BG if stat == "A" else CARD_BG
                 
-                draw_rounded_rect(draw, [x+4, y+4, x+col_widths[j+1]-4, y+row_h-4], 8, fill=bg, outline=color, width=1)
-                draw.text((x + 45, y + 22), stat, font=font_head, fill=TEXT_MAIN)
-            x += col_widths[j+1]
+                draw_rounded_rect(draw, [x+6, y+6, x+col_widths[j]-8, y+row_h-6], 12, fill=bg, outline=color, width=2)
+                
+                # Draw subject name on top, status bottom right
+                draw.text((x + 20, y + 25), full_name, font=font_sub, fill=TEXT_MAIN)
+                draw.text((x + col_widths[j] - 50, y + row_h - 45), stat, font=font_head, fill=TEXT_MAIN)
+        
+        # Draw Periods 1-4
+        x = pad + col_widths[0]
+        for j in range(1, 5):
+            draw_period(x, y, j, lecs)
+            x += col_widths[j]
             
         # Draw Lunch Indicator centrally
         if i == len(days_to_draw) // 2:
-            draw.text((lunch_x1 + 15, y + 5), "L\nU\nN\nC\nH", font=font_lunch, fill=ACCENT_YELLOW)
+            draw.text((lunch_x1 + 30, y + 10), "L\nU\nN\nC\nH", font=font_lunch, fill=ACCENT_YELLOW)
             
         x += col_widths[5] # Skip lunch col
         
         # Draw Periods 5-8
-        for j in range(4, 8):
-            draw_rounded_rect(draw, [x+4, y+4, x+col_widths[j+1]-4, y+row_h-4], 8, fill=CARD_BG, outline=CARD_BORDER, width=1)
-            if j < len(lecs):
-                lec = lecs[j]
-                stat = lec.get("status", "-")
-                color = ACCENT_GREEN if stat == "P" else ACCENT_RED if stat == "A" else TEXT_MUTED
-                bg = ACCENT_GREEN_BG if stat == "P" else ACCENT_RED_BG if stat == "A" else CARD_BG
-                
-                draw_rounded_rect(draw, [x+4, y+4, x+col_widths[j+1]-4, y+row_h-4], 8, fill=bg, outline=color, width=1)
-                draw.text((x + 45, y + 22), stat, font=font_head, fill=TEXT_MAIN)
-            x += col_widths[j+1]
+        for j in range(6, 10):
+            draw_period(x, y, j, lecs)
+            x += col_widths[j]
 
     # Stats footer
     footer_y = total_h - pad - 90

@@ -9,7 +9,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, BotComm
 import asyncio
 import aiohttp
 import time
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, BotCommand
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, BotCommand, WebAppInfo
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, CallbackQueryHandler, MessageHandler, filters
 
 # --- CONFIGURATION ---
@@ -121,7 +121,8 @@ async def show_main_menu(update: Update):
     keyboard = [
         [InlineKeyboardButton("👤 Profile Info", callback_data='menu_profile'), InlineKeyboardButton("🗓️ View Timetable", callback_data='menu_timetable')],
         [InlineKeyboardButton("📊 Attendance Percentage", callback_data='menu_perc')],
-        [InlineKeyboardButton("📅 Subject-wise (Monthly)", callback_data='menu_sub_list')]
+        [InlineKeyboardButton("📅 Subject-wise (Monthly)", callback_data='menu_sub_list')],
+        [InlineKeyboardButton("📚 ITS Library (Mini App)", web_app=WebAppInfo(url="https://its-library.vercel.app/"))]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     text = TEXTS["menu_greeting"].replace("{name}", name)
