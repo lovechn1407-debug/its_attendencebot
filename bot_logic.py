@@ -59,11 +59,21 @@ async def fetch_api(url, method="GET", json_data=None, headers=None):
 async def get_valid_token(email, password):
     # Direct Login via API bypassing Playwright
     payload = {"userType": 1, "email": email, "password": password, "deviceType": "web"}
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'}
+    
+    headers = {
+        'language': 'EN',
+        'authorization': 'Bearer undefined',
+        'referer': 'https://students.its.aperptech.com/',
+        'accept-language': 'en-US,en;q=0.9',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'accept': 'application/json, text/plain, */*',
+        'content-type': 'application/json;charset=UTF-8'
+    }
+    
     data = await fetch_api("https://itsapi.aperptech.com/api/login", method="POST", json_data=payload, headers=headers)
     
     if data and data.get("success"):
-        return data["data"].get("token")
+        return data.get("token")
     return None
 
 async def fetch_profile_data(token):
