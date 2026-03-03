@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,58 +9,87 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.260.0/lucide.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #f8fafc; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #09090b;
+            color: #f8fafc;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
     </style>
 </head>
+
 <body class="h-screen flex overflow-hidden">
 
     <!-- Login Overlay -->
     <div id="loginOverlay" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center">
         <div class="bg-gray-900 p-8 rounded-2xl border border-gray-800 w-96 shadow-2xl">
             <h2 class="text-2xl font-bold mb-6 text-white text-center">Admin Access</h2>
-            <input type="password" id="adminPwd" placeholder="Enter Admin Password" class="w-full bg-gray-800 border border-gray-700 text-white p-3 rounded-lg mb-4 focus:ring-2 focus:ring-sky-500 outline-none transition-all">
-            <button onclick="login()" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-3 rounded-lg transition-colors">Login</button>
+            <input type="password" id="adminPwd" placeholder="Enter Admin Password"
+                class="w-full bg-gray-800 border border-gray-700 text-white p-3 rounded-lg mb-4 focus:ring-2 focus:ring-sky-500 outline-none transition-all">
+            <button onclick="login()"
+                class="w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-3 rounded-lg transition-colors">Login</button>
         </div>
     </div>
 
     <!-- Sidebar -->
     <div class="w-64 bg-gray-900 border-r border-gray-800 flex flex-col">
         <div class="p-6 border-b border-gray-800">
-            <h1 class="text-xl font-bold bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent">Bot Admin Panel</h1>
+            <h1 class="text-xl font-bold bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent">Bot
+                Admin Panel</h1>
         </div>
         <nav class="flex-1 p-4 space-y-2">
-            <button onclick="switchTab('dashboard')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg bg-gray-800 text-white transition-colors" data-tab="dashboard">
+            <button onclick="switchTab('dashboard')"
+                class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg bg-gray-800 text-white transition-colors"
+                data-tab="dashboard">
                 <span>📊</span> <span>Dashboard</span>
             </button>
-            <button onclick="switchTab('broadcast')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors" data-tab="broadcast">
+            <button onclick="switchTab('broadcast')"
+                class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
+                data-tab="broadcast">
                 <span>📢</span> <span>Broadcast</span>
             </button>
-            <button onclick="switchTab('texts')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors" data-tab="texts">
+            <button onclick="switchTab('texts')"
+                class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
+                data-tab="texts">
                 <span>📝</span> <span>Bot Texts</span>
+            </button>
+            <button onclick="switchTab('settings')"
+                class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
+                data-tab="settings">
+                <span>⚙️</span> <span>Settings</span>
             </button>
         </nav>
         <div class="p-4 border-t border-gray-800">
-            <button onclick="logout()" class="w-full px-4 py-2 text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">Logout</button>
+            <button onclick="logout()"
+                class="w-full px-4 py-2 text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">Logout</button>
         </div>
     </div>
 
     <!-- Main Content -->
     <div class="flex-1 overflow-y-auto bg-black p-8">
-        
+
         <!-- Dashboard Tab -->
         <div id="dashboard" class="tab-content active max-w-4xl mx-auto">
             <h2 class="text-3xl font-bold mb-8">System Overview</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-lg flex items-center justify-between">
+                <div
+                    class="bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-lg flex items-center justify-between">
                     <div>
                         <p class="text-gray-400 font-medium mb-1">Total Registered Users</p>
                         <h3 class="text-4xl font-bold text-sky-400" id="stat-users">--</h3>
                     </div>
                     <div class="text-4xl">👥</div>
                 </div>
-                <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-lg flex items-center justify-between">
+                <div
+                    class="bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-lg flex items-center justify-between">
                     <div>
                         <p class="text-gray-400 font-medium mb-1">Bot Status</p>
                         <h3 class="text-2xl font-bold text-emerald-400 flex items-center gap-2">
@@ -75,34 +105,46 @@
         <div id="broadcast" class="tab-content max-w-4xl mx-auto">
             <h2 class="text-3xl font-bold mb-8">Send Announcement</h2>
             <div class="bg-gray-900 p-6 rounded-2xl border border-gray-800 shadow-lg">
-                
+
                 <!-- ✨ Gemini API Feature: AI Drafter -->
                 <div class="mb-6 p-4 bg-indigo-900/20 border border-indigo-500/30 rounded-xl">
                     <label class="block text-indigo-300 font-semibold mb-2 text-sm">✨ AI Announcement Drafter</label>
                     <div class="flex gap-2">
-                        <input type="text" id="ai-topic" placeholder="e.g., Server maintenance tomorrow at 10 AM, will be back by noon..." class="flex-1 bg-gray-800 border border-gray-700 text-white p-3 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
-                        <button onclick="draftWithAI()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2 whitespace-nowrap" id="ai-draft-btn">
+                        <input type="text" id="ai-topic"
+                            placeholder="e.g., Server maintenance tomorrow at 10 AM, will be back by noon..."
+                            class="flex-1 bg-gray-800 border border-gray-700 text-white p-3 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                        <button onclick="draftWithAI()"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2 whitespace-nowrap"
+                            id="ai-draft-btn">
                             ✨ Draft
                         </button>
                     </div>
                     <p class="text-xs text-indigo-400/70 mt-2">Powered by Gemini LLM</p>
                 </div>
 
-                <p class="text-gray-400 mb-4">Send a message to all registered users. HTML tags like &lt;b&gt; and &lt;i&gt; are supported.</p>
-                
+                <p class="text-gray-400 mb-4">Send a message to all registered users. HTML tags like &lt;b&gt; and
+                    &lt;i&gt; are supported.</p>
+
                 <!-- Quick Variables Tool -->
                 <div class="mb-3">
                     <span class="text-gray-400 text-sm mr-2 block mb-2 sm:inline sm:mb-0">Insert Variables:</span>
                     <div class="inline-flex flex-wrap gap-2">
-                        <button onclick="insertVar('{name}')" class="text-xs bg-sky-900/30 text-sky-400 border border-sky-500/30 px-3 py-1 rounded hover:bg-sky-500 hover:text-white transition-colors">{name}</button>
-                        <button onclick="insertVar('{email}')" class="text-xs bg-sky-900/30 text-sky-400 border border-sky-500/30 px-3 py-1 rounded hover:bg-sky-500 hover:text-white transition-colors">{email}</button>
-                        <button onclick="insertVar('{rollNo}')" class="text-xs bg-sky-900/30 text-sky-400 border border-sky-500/30 px-3 py-1 rounded hover:bg-sky-500 hover:text-white transition-colors">{rollNo}</button>
-                        <button onclick="insertVar('{course}')" class="text-xs bg-sky-900/30 text-sky-400 border border-sky-500/30 px-3 py-1 rounded hover:bg-sky-500 hover:text-white transition-colors">{course}</button>
+                        <button onclick="insertVar('{name}')"
+                            class="text-xs bg-sky-900/30 text-sky-400 border border-sky-500/30 px-3 py-1 rounded hover:bg-sky-500 hover:text-white transition-colors">{name}</button>
+                        <button onclick="insertVar('{email}')"
+                            class="text-xs bg-sky-900/30 text-sky-400 border border-sky-500/30 px-3 py-1 rounded hover:bg-sky-500 hover:text-white transition-colors">{email}</button>
+                        <button onclick="insertVar('{rollNo}')"
+                            class="text-xs bg-sky-900/30 text-sky-400 border border-sky-500/30 px-3 py-1 rounded hover:bg-sky-500 hover:text-white transition-colors">{rollNo}</button>
+                        <button onclick="insertVar('{course}')"
+                            class="text-xs bg-sky-900/30 text-sky-400 border border-sky-500/30 px-3 py-1 rounded hover:bg-sky-500 hover:text-white transition-colors">{course}</button>
                     </div>
                 </div>
 
-                <textarea id="broadcast-msg" rows="6" class="w-full bg-gray-800 border border-gray-700 text-white p-4 rounded-xl mb-4 focus:ring-2 focus:ring-sky-500 outline-none transition-all" placeholder="Enter your announcement here..."></textarea>
-                <button onclick="sendBroadcast()" class="bg-sky-500 hover:bg-sky-600 px-6 py-3 rounded-xl font-semibold transition-colors flex items-center gap-2">
+                <textarea id="broadcast-msg" rows="6"
+                    class="w-full bg-gray-800 border border-gray-700 text-white p-4 rounded-xl mb-4 focus:ring-2 focus:ring-sky-500 outline-none transition-all"
+                    placeholder="Enter your announcement here..."></textarea>
+                <button onclick="sendBroadcast()"
+                    class="bg-sky-500 hover:bg-sky-600 px-6 py-3 rounded-xl font-semibold transition-colors flex items-center gap-2">
                     🚀 Send to All Users
                 </button>
                 <p id="broadcast-status" class="mt-4 text-emerald-400 hidden font-medium"></p>
@@ -113,16 +155,44 @@
         <div id="texts" class="tab-content max-w-5xl mx-auto">
             <div class="flex justify-between items-center mb-8">
                 <h2 class="text-3xl font-bold">Edit Bot Texts</h2>
-                <button onclick="saveTexts()" class="bg-emerald-500 hover:bg-emerald-600 px-6 py-2 rounded-xl font-semibold transition-colors">
+                <button onclick="saveTexts()"
+                    class="bg-emerald-500 hover:bg-emerald-600 px-6 py-2 rounded-xl font-semibold transition-colors">
                     💾 Save All Changes
                 </button>
             </div>
             <div class="bg-gray-900 rounded-2xl border border-gray-800 shadow-lg p-6">
                 <div class="mb-6 p-3 bg-blue-900/20 border border-blue-500/30 rounded-lg text-sm text-blue-300">
-                    <span class="font-bold">Tip:</span> Use the ✨ Enhance button next to any text to have Gemini rewrite it to be more engaging and professional!
+                    <span class="font-bold">Tip:</span> Use the ✨ Enhance button next to any text to have Gemini rewrite
+                    it to be more engaging and professional!
                 </div>
                 <div id="text-editors" class="space-y-6">
                     <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings" class="tab-content max-w-4xl mx-auto">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold">Bot Settings</h2>
+                <button onclick="saveSettings()"
+                    class="bg-emerald-500 hover:bg-emerald-600 px-6 py-2 rounded-xl font-semibold transition-colors">
+                    💾 Save Settings
+                </button>
+            </div>
+
+            <div class="bg-gray-900 rounded-2xl border border-gray-800 shadow-lg p-6 mb-8">
+                <h3 class="text-xl font-bold mb-4 text-sky-400">Image Assets Settings</h3>
+                <p class="text-gray-400 text-sm mb-6">Customize the copyright watermark displayed at the bottom of
+                    generated UI images.</p>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-300 font-semibold mb-2">Copyright Footer Text</label>
+                        <input type="text" id="setting_copyright_text" placeholder="© AS Studios | Love Chauhan CSE DS"
+                            class="w-full bg-gray-800 border border-gray-700 text-white p-3 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none transition-all">
+                        <p class="text-xs text-gray-500 mt-2">Leave blank to use the default.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -139,14 +209,14 @@
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
             const payload = {
                 contents: [{ parts: [{ text: prompt }] }],
-                systemInstruction: { 
-                    parts: [{ text: "You are a helpful AI assistant for a university ERP Telegram bot administrator. Write clean, professional, and friendly messages. Keep HTML formatting like <b>, <i>, and variables like {name} intact. Output ONLY the finalized text without wrapping quotes or markdown blocks." }] 
+                systemInstruction: {
+                    parts: [{ text: "You are a helpful AI assistant for a university ERP Telegram bot administrator. Write clean, professional, and friendly messages. Keep HTML formatting like <b>, <i>, and variables like {name} intact. Output ONLY the finalized text without wrapping quotes or markdown blocks." }]
                 }
             };
 
             let retries = 5;
             let delay = 1000;
-            
+
             while (retries > 0) {
                 try {
                     const response = await fetch(url, {
@@ -154,9 +224,9 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
-                    
+
                     if (!response.ok) throw new Error("API request failed");
-                    
+
                     const data = await response.json();
                     if (data.candidates && data.candidates[0].content.parts[0].text) {
                         return data.candidates[0].content.parts[0].text;
@@ -174,7 +244,7 @@
         async function draftWithAI() {
             const topic = document.getElementById('ai-topic').value;
             if (!topic.trim()) return alert("Please enter a topic to draft!");
-            
+
             const btn = document.getElementById('ai-draft-btn');
             const originalBtnHTML = btn.innerHTML;
             btn.innerHTML = "⏳ Drafting...";
@@ -223,9 +293,9 @@
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            
+
             document.querySelectorAll('.nav-btn').forEach(btn => {
-                if(btn.dataset.tab === tabId) {
+                if (btn.dataset.tab === tabId) {
                     btn.classList.add('bg-gray-800', 'text-white');
                     btn.classList.remove('text-gray-400');
                 } else {
@@ -261,7 +331,7 @@
             const startPos = textarea.selectionStart;
             const endPos = textarea.selectionEnd;
             const text = textarea.value;
-            
+
             textarea.value = text.substring(0, startPos) + variable + text.substring(endPos, text.length);
             textarea.focus();
             textarea.selectionStart = startPos + variable.length;
@@ -275,7 +345,7 @@
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
             };
             if (body) options.body = JSON.stringify(body);
-            
+
             const res = await fetch(`/api/${endpoint}`, options);
             if (res.status === 401) {
                 logout();
@@ -288,7 +358,13 @@
         async function loadData() {
             // Load Stats
             const stats = await fetchAPI('stats');
-            if (stats) document.getElementById('stat-users').innerText = stats.users;
+            if (stats) document.getElementById('stat-users').innerText = stats.users || 0;
+
+            // Load Settings
+            const settings = await fetchAPI('settings');
+            if (settings) {
+                document.getElementById('setting_copyright_text').value = settings.copyright_text || '';
+            }
 
             // Load Texts
             const texts = await fetchAPI('texts');
@@ -342,7 +418,16 @@
             }
         }
 
+        async function saveSettings() {
+            const copyright_text = document.getElementById('setting_copyright_text').value;
+            const res = await fetchAPI('settings', 'POST', { copyright_text });
+            if (res && res.success) {
+                alert("✅ Settings saved successfully!");
+            }
+        }
+
         checkAuth();
     </script>
 </body>
+
 </html>

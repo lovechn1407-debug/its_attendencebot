@@ -37,6 +37,15 @@ def save_users(users_dict):
     if isinstance(db, dict): db["users"] = users_dict
     else: db.set("users", json.dumps(users_dict))
 
+def get_settings():
+    if isinstance(db, dict): return db.get("settings", {})
+    settings_str = db.get("settings")
+    return json.loads(settings_str) if settings_str else {}
+
+def save_settings(settings_dict):
+    if isinstance(db, dict): db["settings"] = settings_dict
+    else: db.set("settings", json.dumps(settings_dict))
+
 USER_STATES = {} 
 
 # --- TEXTS ---
@@ -216,7 +225,9 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(get_progress(30, "Drawing charts..."), parse_mode="HTML")
         data = await fetch_erp_data(token)
         
-        bio = img_generator.render_summary_image(data)
+        settings = get_settings()
+        copyright_text = settings.get("copyright_text", None)
+        bio = img_generator.render_summary_image(data, copyright_text)
         if bio:
             await query.message.reply_photo(photo=bio, caption="✨ <b>Premium Attendance Summary</b>", parse_mode="HTML")
             await query.message.delete()
@@ -227,7 +238,9 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(get_progress(40, "Rendering Timetable..."), parse_mode="HTML")
         data = await fetch_timetable_data(token)
         
-        bio = img_generator.render_timetable_image(data)
+        settings = get_settings()
+        copyright_text = settings.get("copyright_text", None)
+        bio = img_generator.render_timetable_image(data, copyright_text)
         if bio:
             await query.message.reply_photo(photo=bio, caption="🗓️ <b>Live Timetable</b>", parse_mode="HTML")
             await query.message.delete()
@@ -248,7 +261,10 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(get_progress(40, "Generating Registry..."), parse_mode="HTML")
         
         data = await fetch_erp_data(token, month=month_idx)
-        bio = img_generator.render_subjectwise_image(data, month_idx)
+        
+        settings = get_settings()
+        copyright_text = settings.get("copyright_text", None)
+        bio = img_generator.render_subjectwise_image(data, month_idx, copyright_text)
         
         if bio:
             await query.message.reply_photo(photo=bio, caption=f"📅 <b>Month {month_idx} Registry</b>", parse_mode="HTML")
